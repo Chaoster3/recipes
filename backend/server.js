@@ -1,13 +1,15 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+require('dotenv').config();
+
 const pg = require('knex')({
     client: 'pg',
     connection: {
-        host: '127.0.0.1',
-        user: 'samuelngiam',
-        password: '',
-        database: 'recipes'
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME
     }
 });
 
