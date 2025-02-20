@@ -1,40 +1,75 @@
 import React, { useState } from 'react';
+import { X } from 'lucide-react';
 
-const PostModal = ({onPost, modalChange}) => {
+const PostModal = ({ onPost, modalChange }) => {
     const [post, setPost] = useState("");
+    const handlePostChange = (event) => {
+        setPost(event.target.value);
+    };
 
-    const postChange = (event) => {
-        setPost(event.target.value)
-    }
+    const handleSubmit = () => {
+        if (post.trim()) {
+            onPost(post);
+            modalChange(false);
+        }
+    };
 
     return (
-        <div className="modal fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
-            <div className="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+            {/* Backdrop */}
+            <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+                onClick={() => modalChange(false)}
+            />
 
-            <div className="modal-container bg-white w-11/12 md:max-w-md rounded-lg shadow-lg z-50 overflow-y-auto">
-                <div className="modal-content py-4 text-left px-6">
+            {/* Modal */}
+            <div className="max-w-2xl w-11/12 bg-white rounded-xl shadow-xl transform transition-all max-h-[90vh] flex flex-col">
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                    <div className="flex-1" /> {/* Spacer */}
+                    <h2 className="text-2xl font-bold text-gray-800">Share Your Review</h2>
+                    <div className="flex-1 flex justify-end">
+                        <button
+                            onClick={() => modalChange(false)}
+                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                        >
+                            <X className="w-6 h-6 text-gray-500" />
+                        </button>
+                    </div>
+                </div>
 
-                    <div className="flex justify-between items-center pb-3">
-                        <p className="text-xl font-bold">Add a Review</p>
-                        <div className="modal-close cursor-pointer z-50">
-                            <svg className="fill-current text-black" onClick={() => modalChange(false)} xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-                                <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
-                            </svg>
+                {/* Content */}
+                <div className="overflow-y-auto p-6 flex-grow">
+                    <div className="relative">
+                        <textarea
+                            className="w-full min-h-[160px] p-4 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-colors resize-none"
+                            placeholder="Share your thoughts about this recipe..."
+                            value={post}
+                            onChange={handlePostChange}
+                        />
+                        <div className="absolute bottom-3 right-3 text-sm text-gray-400">
+                            {post.length} / 500
                         </div>
                     </div>
+                </div>
 
-                    <textarea className="w-full h-40 p-1 border border-gray-300 rounded-lg" placeholder='Write something about the recipe' onChange={postChange}/>
-
-
-                    <div className="flex justify-center pt-2">
-                        <button className="px-4 bg-blue-500 p-2 rounded-lg text-white hover:bg-blue-700" onClick={() => onPost(post)}>Post</button>
-                    </div>
-
+                {/* Footer */}
+                <div className="flex items-center justify-center gap-3 px-6 py-4 border-t border-gray-100">
+                    <button
+                        onClick={handleSubmit}
+                        disabled={!post.trim()}
+                        className={`px-6 py-2 text-sm font-medium rounded-lg transition-all ${
+                            post.trim()
+                                ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-md hover:shadow-lg'
+                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        }`}
+                    >
+                        Post Review
+                    </button>
                 </div>
             </div>
         </div>
-
     );
-}
+};
 
 export default PostModal;

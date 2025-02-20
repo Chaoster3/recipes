@@ -4,7 +4,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        inter: ["Inter"]
+        'playfair': ['Playfair Display', 'serif'],
+        'lora': ['Lora', 'serif'],
+        'inter': ["Inter"]
       },
       colors: {
         'new': '#FF6347'

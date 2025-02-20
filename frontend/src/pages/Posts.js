@@ -11,7 +11,6 @@ const Posts = ({ username }) => {
     } else {
         return (
             <div className="flex flex-col items-center flex-grow overflow-hidden">
-                <div className="text-2xl text-white font-semibold p-8 w-full">Latest Reviews</div>
                 <PostsList username={username} changeShown={setShown} />
             </div>
         )   

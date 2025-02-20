@@ -1,62 +1,93 @@
 import React, { useState, useEffect } from 'react';
+import { Clock, Users, ChefHat, BookOpen } from 'lucide-react';
 
-const FavoritesList = ({username, changeShown}) => {
+const FavoritesList = ({ username, changeShown }) => {
     const [favorites, setFavorites] = useState(null);
 
     useEffect(() => {
-        return async () => {
+        const fetchFavorites = async () => {
             try {
-                const favResponse = await fetch(`http://localhost:3001/favorites/${username}`);
-                const fav = await favResponse.json();
-                setFavorites(fav);
+                const response = await fetch(`http://localhost:3001/favorites/${username}`);
+                const data = await response.json();
+                setFavorites(data);
             } catch (error) {
-                console.log('Error:', error);
+                console.error('Error fetching favorites:', error);
             }
-        }
+        };
+        fetchFavorites();
     }, [username]);
 
-    if (favorites) {
-        if (favorites.length === 0) {
-            return (
-                <div className="mt-32 text-white text-lg">
-                    No saved recipes
+    const renderLoadingState = () => (
+        <div className="min-h-screen bg-[#fde7cb] flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+                <ChefHat className="w-12 h-12 text-orange-400 animate-bounce" />
+                <p className="text-lg text-gray-600">Preparing your recipes...</p>
+            </div>
+        </div>
+    );
+
+    const renderEmptyState = () => (
+        <div className="min-h-screen bg-[#fde7cb] flex items-center justify-center">
+            <div className="flex flex-col items-center gap-6 max-w-md text-center p-8 mb-64">
+                <BookOpen className="w-16 h-16 text-orange-400" />
+                <h2 className="text-2xl font-semibold text-gray-800">Your Recipe Book is Empty</h2>
+                <p className="text-gray-600">
+                    Start exploring and save your favorite recipes to build your personal collection.
+                </p>
+            </div>
+        </div>
+    );
+
+    const renderFavorites = () => (
+        <div className="min-h-screen bg-[#fde7cb] px-4 py-8">
+            <div className="max-w-4xl mx-auto">
+                <div className="mb-8 text-center">
+                    <h1 className="text-4xl font-bold text-gray-800 mb-4">Your Culinary Collection</h1>
+                    <p className="text-gray-600">
+                        {favorites.length} saved {favorites.length === 1 ? "recipe" : "recipes"} waiting to be cooked.
+                    </p>
                 </div>
-            )
-        }
-        else {
-            console.log(favorites[0].saved)
-            return (
-                <div className="flex flex-wrap gap-5 w-2/3 overflow-auto pb-24 p-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {favorites.map((recipe) => (
-                        <div className="flex shadow-xl bg-white cursor-pointer w-full rounded-lg hover:scale-105 duration-500" onClick={() => changeShown(recipe)}>
-                            <img src={recipe.image} alt={recipe.title} className="w-72 object-contain border-r rounded-l-lg" />
-                            <div className='w-full flex flex-col items-start text-left m-4 ml-10'>
-                                <div className="font-semibold mt-3 text-2xl">{recipe.title}</div>
-                                <div className="flex text-base flex-grow w-full">
-                                    <div className="self-end">{recipe.minutes} minutes</div> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <div className="self-end">{recipe.servings} servings</div>
-                                    <div className="ml-auto self-end"> Saved on: {recipe.saved.substring(5, 7)}/{recipe.saved.substring(8, 10)}/{recipe.saved.substr(0,4)} </div>
+                        <div
+                            key={recipe.recipe_id}
+                            onClick={() => changeShown(recipe)}
+                            className="group relative bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                        >
+                            <div className="relative h-40">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+                                <img
+                                    src={recipe.image}
+                                    alt={recipe.title}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div className="p-4">
+                                <h2 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
+                                    {recipe.title}
+                                </h2>
+                                <div className="flex items-center gap-4 text-gray-600">
+                                    <div className="flex items-center gap-1">
+                                        <Clock className="w-4 h-4 text-orange-400" />
+                                        <span className="text-sm">{recipe.minutes} mins</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Users className="w-4 h-4 text-orange-400" />
+                                        <span className="text-sm">{recipe.servings} servings</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div> 
+                            <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/10 transition-colors duration-300" />
+                        </div>
                     ))}
                 </div>
-            );
-        }
-    } else {
-        return (
-            <div className="mt-32 text-white text-lg">
-                No saved recipes
             </div>
-        )
-    }
-}
+        </div>
+    );
+
+    if (!favorites) return renderLoadingState();
+    if (favorites.length === 0) return renderEmptyState();
+    return renderFavorites();
+};
 
 export default FavoritesList;
-
-{/* <div className="w-72 shadow-xl bg-white p-2 cursor-pointer rounded-lg" onClick={() => changeShown(recipe)}>
-                            <img src={recipe.image} alt={recipe.title} className="" />
-                            <div className="m-2">
-                                <div className="text-xl flex flex-col font-semibold">{recipe.title}</div>
-                            </div>
-                        </div> */}
