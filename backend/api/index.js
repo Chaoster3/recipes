@@ -3,10 +3,10 @@ const cors = require('cors');
 require('dotenv').config();
 
 // Import routes
-const authRoutes = require('./routes/auth.routes');
-const recipesRoutes = require('./routes/recipes.routes');
-const favoritesRoutes = require('./routes/favorites.routes');
-const reviewsRoutes = require('./routes/reviews.routes');
+const authRoutes = require('../routes/auth.routes');
+const recipesRoutes = require('../routes/recipes.routes');
+const favoritesRoutes = require('../routes/favorites.routes');
+const reviewsRoutes = require('../routes/reviews.routes');
 
 const app = express();
 
@@ -30,3 +30,5 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
