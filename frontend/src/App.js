@@ -17,7 +17,7 @@ const App = () => {
     <div className="h-screen flex">
       {/* Navigation - fixed width */}
       {route !== 'login' && route !== 'register' && (
-        <div className="w-80 flex-shrink-0">
+        <div className="w-60 flex-shrink-0">
           <Navigation
             route={route}
             routeChange={setRoute}

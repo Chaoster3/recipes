@@ -144,22 +144,22 @@ const ShoppingCart = ({ username }) => {
     };
 
     return (
-        <div className="w-full px-8 py-12">
+        <div className="w-full px-14 py-12">
             {modal && <PlanModal addToMealPlan={addToMealPlan} modalChange={setModal} favorites={favorites} />}
             
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-12 text-center">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-4">Shopping Cart Tool</h1>
+                    <h1 className="text-3xl font-bold text-gray-800 mb-4">Shopping Cart Tool</h1>
                     <p className="text-gray-600">
                         Plan your meals and generate a shopping list
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 justify-center">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 justify-center">
                     <div className="lg:col-span-5">
                         <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Your Meal Plan</h2>
+                            <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">Your Meal Plan</h2>
                             
                             <div className="space-y-3">
                                 {mealPlan.map((recipe) => (
@@ -167,9 +167,9 @@ const ShoppingCart = ({ username }) => {
                                         key={recipe.recipe_id} 
                                         className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200"
                                     >
-                                        <h3 className="text-lg font-semibold text-gray-800 mb-3 line-clamp-1 text-center">{recipe.title}</h3>
+                                        <h3 className="text font-semibold text-gray-800 mb-3 line-clamp-1 ">{recipe.title}</h3>
                                         <div className="flex items-center justify-between">
-                                            <div className="text-sm font-medium text-orange-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                            <div className="text-xs font-medium text-orange-600 bg-white px-3 py-1 rounded-full shadow-sm">
                                                 {recipe.quantity} {recipe.quantity === 1 ? 'serving' : 'servings'}
                                             </div>
                                             <div className="flex items-center gap-1.5">
@@ -177,19 +177,19 @@ const ShoppingCart = ({ username }) => {
                                                     onClick={() => decrementQuantity(recipe.recipe_id)}
                                                     className="p-1.5 bg-white text-orange-600 rounded-full hover:bg-orange-50 transition-colors shadow-sm"
                                                 >
-                                                    <MinusCircle className="w-5 h-5" />
+                                                    <MinusCircle className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => incrementQuantity(recipe.recipe_id)}
                                                     className="p-1.5 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors shadow-sm"
                                                 >
-                                                    <PlusCircle className="w-5 h-5" />
+                                                    <PlusCircle className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => removeFromMealPlan(recipe.recipe_id)}
                                                     className="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-sm"
                                                 >
-                                                    <X className="w-5 h-5" />
+                                                    <X className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </div>
@@ -199,7 +199,7 @@ const ShoppingCart = ({ username }) => {
 
                             <button
                                 onClick={() => setModal(true)}
-                                className="mt-4 w-full p-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl shadow-md hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center justify-center gap-2"
+                                className="text-sm mt-4 w-full p-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl shadow-md hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center justify-center gap-2"
                             >
                                 <PlusCircle className="w-5 h-5" />
                                 Add Recipe to Plan
@@ -209,10 +209,10 @@ const ShoppingCart = ({ username }) => {
 
                     <div className="lg:col-span-7">
                         <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Shopping List</h2>
+                            <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">Shopping List</h2>
                             
                             {mealPlan.length > 0 ? (
-                                <div className="grid gap-3">
+                                <div className="grid gap-3 text-sm">
                                     {ingredients.map((ingredient) => (
                                         <div 
                                             key={ingredient.name} 
@@ -228,7 +228,7 @@ const ShoppingCart = ({ username }) => {
                             ) : (
                                 <div className="text-center py-12 bg-orange-50 rounded-xl border border-orange-200">
                                     <ChefHat className="w-12 h-12 text-orange-400 mx-auto mb-3" />
-                                    <p className="text-gray-600 text-lg">No dishes added to the meal plan yet.</p>
+                                    <p className="text-gray-600 text">No dishes added to the meal plan yet.</p>
                                 </div>
                             )}
                         </div>

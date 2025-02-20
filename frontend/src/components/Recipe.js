@@ -119,15 +119,15 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
 
     if (!ready) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-pulse text-lg text-gray-600">Loading recipe...</div>
+            <div className="flex justify-center items-center h-48">
+                <div className="animate-pulse text-base text-gray-600">Loading recipe...</div>
             </div>
         );
     }
 
     return (
         <div className="bg-white rounded-xl shadow-xl overflow-hidden max-w-4xl mx-auto">
-            {/* Header Section - same as before */}
+            {/* Header Section */}
             <div className="relative">
                 <img
                     src={recipe.image.replace(/-\w+\.(jpg|jpeg|png|gif)$/, '-636x393.$1')}
@@ -139,11 +139,11 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
                         <h1 className="text-4xl font-bold text-white mb-4">{recipe.title}</h1>
                         <div className="flex gap-4 text-white/90">
                             <div className="flex items-center gap-1">
-                                <Clock className="w-4 h-4" />
+                                <Clock className="w-5 h-5" />
                                 <span className="text-sm">{recipe.minutes} mins</span>
                             </div>
                             <div className="flex items-center gap-1">
-                                <Users className="w-4 h-4" />
+                                <Users className="w-5 h-5" />
                                 <span className="text-sm">{recipe.servings} servings</span>
                             </div>
                         </div>
@@ -157,27 +157,15 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
                 </button>
             </div>
 
-            {/* Content Section */}
             <div className="p-8">
-                {/* Updated Quick Actions with smaller buttons */}
+                {/* Action Buttons */}
                 <div className="flex justify-end gap-3 mb-8">
-                    {isSaved ? (
-                        <button
-                            onClick={remove}
-                            className="flex items-center gap-1.5 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors text-sm"
-                        >
-                            <Star className="w-4 h-4" />
-                            Remove Favorite
-                        </button>
-                    ) : (
-                        <button
-                            onClick={save}
-                            className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors text-sm"
-                        >
-                            <Star className="w-4 h-4" />
-                            Add Favorite
-                        </button>
-                    )}
+                    <button
+                        className="flex items-center gap-1.5 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors text-sm"
+                    >
+                        <Star className="w-4 h-4" />
+                        Remove Favorite
+                    </button>
                     <button
                         onClick={() => setModal(true)}
                         className="flex items-center gap-1.5 bg-green-50 text-green-600 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors text-sm"
@@ -187,7 +175,7 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
                     </button>
                 </div>
 
-                {/* Rest of the content remains the same */}
+                {/* About Section */}
                 <div className="mb-8">
                     <h2 className="text-2xl font-semibold text-gray-800 mb-4">About this Recipe</h2>
                     <div className="prose prose-sm max-w-none text-gray-600">

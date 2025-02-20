@@ -30,7 +30,7 @@ const FavoritesList = ({ username, changeShown }) => {
         <div className="min-h-screen bg-[#fde7cb] flex items-center justify-center">
             <div className="flex flex-col items-center gap-6 max-w-md text-center p-8 mb-64">
                 <BookOpen className="w-16 h-16 text-orange-400" />
-                <h2 className="text-2xl font-semibold text-gray-800">Your Recipe Book is Empty</h2>
+                <h2 className="text-xl font-semibold text-gray-800">Your Recipe Book is Empty</h2>
                 <p className="text-gray-600">
                     Start exploring and save your favorite recipes to build your personal collection.
                 </p>
@@ -42,8 +42,8 @@ const FavoritesList = ({ username, changeShown }) => {
         <div className="min-h-screen bg-[#fde7cb] px-4 py-8">
             <div className="max-w-4xl mx-auto">
                 <div className="mb-8 text-center">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-4">Your Culinary Collection</h1>
-                    <p className="text-gray-600">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-4">Your Culinary Collection</h1>
+                    <p className="text-gray-600 text-md">
                         {favorites.length} saved {favorites.length === 1 ? "recipe" : "recipes"} waiting to be cooked.
                     </p>
                 </div>
@@ -63,17 +63,17 @@ const FavoritesList = ({ username, changeShown }) => {
                                 />
                             </div>
                             <div className="p-4">
-                                <h2 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
+                                <h2 className="text font-semibold text-gray-800 mb-3 group-hover:text-orange-600 transition-colors line-clamp-2">
                                     {recipe.title}
                                 </h2>
                                 <div className="flex items-center gap-4 text-gray-600">
                                     <div className="flex items-center gap-1">
-                                        <Clock className="w-4 h-4 text-orange-400" />
-                                        <span className="text-sm">{recipe.minutes} mins</span>
+                                        <Clock className="w-3.5 h-3.5 text-orange-400" />
+                                        <span className="text-xs">{recipe.minutes} mins</span>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <Users className="w-4 h-4 text-orange-400" />
-                                        <span className="text-sm">{recipe.servings} servings</span>
+                                        <Users className="w-3.5 h-3.5 text-orange-400" />
+                                        <span className="text-xs">{recipe.servings} servings</span>
                                     </div>
                                 </div>
                             </div>

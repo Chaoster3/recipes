@@ -1,19 +1,33 @@
 const bcrypt = require('bcrypt');
 const db = require('../config/db');
 
+const test = async (req, res) => {
+    res.json('test success');
+}
+
 const signin = async (req, res) => {
     const {username, password} = req.body;
     try {
+        // Check if username exists
         const data = await db.select('username', 'password').from('login')
             .where('username', '=', username);
-        bcrypt.compare(password, data[0].password, function (err, result) {
-            if (result) {
-                res.json('login success');
-            } else {
-                res.status(403).json('login failed');
-            }
-        });
+            
+        if (data.length === 0) {
+            console.log('Login failed: User not found');
+            return res.status(403).json('login failed');
+        }
+
+        // Compare passwords
+        const match = await bcrypt.compare(password, data[0].password);
+        if (match) {
+            console.log('Login successful for user:', username);
+            res.json('login success');
+        } else {
+            console.log('Login failed: Incorrect password');
+            res.status(403).json('login failed');
+        }
     } catch (error) {
+        console.error('Login error:', error);
         res.status(403).json('login failed');
     }
 };
