@@ -54,5 +54,6 @@ const register = async (req, res) => {
 
 module.exports = {
     signin,
-    register
+    register,
+    test
 }; 
