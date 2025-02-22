@@ -86,7 +86,7 @@ const handleGoogleSignin = async (req, res) => {
 };
 
 const handleGoogleRegister = async (req, res) => {
-    const { username, name, googleId } = req.body;
+    const { username, googleId } = req.body;
     
     try {
         // Check if username or Google ID already exists
@@ -112,8 +112,7 @@ const handleGoogleRegister = async (req, res) => {
         // User doesn't exist, create new account
         await db('login').insert({
             username: username,
-            google_id: googleId,
-            name: name
+            google_id: googleId
         });
         
         res.json({ success: true, message: 'register success' });
