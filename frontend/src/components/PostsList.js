@@ -7,7 +7,9 @@ const PostsList = ({ username, changeShown }) => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const postsResponse = await fetch(`http://localhost:3001/reviews`);
+                const postsResponse = await fetch(
+                    `${process.env.REACT_APP_BASE_URL}/reviews`
+                );
                 const received = await postsResponse.json();
                 setPosts(received);
             } catch (error) {
@@ -19,8 +21,13 @@ const PostsList = ({ username, changeShown }) => {
 
     if (!posts) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-pulse text-lg text-gray-600">Loading reviews...</div>
+            <div className="flex justify-center items-center h-64 animate-fadeIn">
+                <div className="animate-pulse text-lg text-gray-600">
+                    <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-orange-200 rounded-full animate-bounce" />
+                        <span>Loading reviews...</span>
+                    </div>
+                </div>
             </div>
         );
     }

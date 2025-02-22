@@ -1,12 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { X, Clock, Users, Star, Share2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Clock, Users, Star, Share2, Heart } from 'lucide-react';
 import PostModal from './PostModal';
+import { 
+  FacebookShareButton, 
+  TwitterShareButton, 
+  WhatsappShareButton, 
+  EmailShareButton,
+  FacebookIcon,
+  TwitterIcon,
+  WhatsappIcon,
+  EmailIcon
+} from 'react-share';
 
 const Recipe = ({ recipe, saved, username, hideRecipe }) => {
     const [ready, setReady] = useState(recipe.minutes != null);
     const [modal, setModal] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
-    console.log(recipe);
+    const [showShareMenu, setShowShareMenu] = useState(false);
+    const shareUrl = `${window.location.origin}/recipe/${recipe.recipe_id}`;
+    const shareTitle = `Check out this recipe for ${recipe.title}!`;
+    const shareMenuRef = useRef(null);
+
     useEffect(() => {
         if (!recipe.minutes) {
             recipe.recipe_id = recipe.id;
@@ -19,7 +33,7 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
         // Check if recipe is favorited
         const checkFavoriteStatus = async () => {
             try {
-                const response = await fetch(`http://localhost:3001/favorites/check/${username}/${recipe.recipe_id}`);
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/favorites/check/${username}/${recipe.recipe_id}`);
                 const data = await response.json();
                 setIsSaved(data.isFavorited);
             } catch (error) {
@@ -31,6 +45,17 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
             checkFavoriteStatus();
         }
     }, [recipe, username]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
+                setShowShareMenu(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const save = async () => {
         console.log(JSON.stringify({
@@ -45,7 +70,7 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
             summary: recipe.summary,
         }));
         try {
-            const saveResponse = await fetch('http://localhost:3001/favorites', {
+            const saveResponse = await fetch(`${process.env.REACT_APP_BASE_URL}/favorites`, {
                 method: 'post',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -72,7 +97,7 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
 
     const post = async (review) => {
         try {
-            const postResponse = await fetch('http://localhost:3001/reviews', {
+            const postResponse = await fetch(`${process.env.REACT_APP_BASE_URL}/reviews`, {
                 method: 'post',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -99,7 +124,7 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
 
     const remove = async () => {
         try {
-            const saveResponse = await fetch('http://localhost:3001/favorites', {
+            const saveResponse = await fetch(`${process.env.REACT_APP_BASE_URL}/favorites`, {
                 method: 'delete',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -163,9 +188,67 @@ const Recipe = ({ recipe, saved, username, hideRecipe }) => {
                     <button
                         className="flex items-center gap-1.5 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors text-sm"
                     >
-                        <Star className="w-4 h-4" />
-                        Remove Favorite
+                        <Heart className={isSaved ? 'fill-current' : ''} size={18} />
+                        {isSaved ? 'Remove Favorite' : 'Save'}
                     </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowShareMenu(!showShareMenu)}
+                            className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition duration-200"
+                        >
+                            <Share2 className="w-4 h-4" />
+                            Share
+                        </button>
+                        {showShareMenu && (
+                            <div 
+                                ref={shareMenuRef} 
+                                className="absolute top-full mt-2 right-0 bg-white rounded-xl shadow-lg p-3 z-50 animate-scaleIn"
+                                style={{ minWidth: '180px' }}
+                            >
+                                <div className="flex gap-2">
+                                    <FacebookShareButton 
+                                        url={shareUrl} 
+                                        quote={shareTitle}
+                                        className="hover:opacity-80 transition-opacity"
+                                    >
+                                        <FacebookIcon size={32} round />
+                                    </FacebookShareButton>
+                                    <TwitterShareButton 
+                                        url={shareUrl} 
+                                        title={shareTitle}
+                                        className="hover:opacity-80 transition-opacity"
+                                    >
+                                        <TwitterIcon size={32} round />
+                                    </TwitterShareButton>
+                                    <WhatsappShareButton 
+                                        url={shareUrl} 
+                                        title={shareTitle}
+                                        className="hover:opacity-80 transition-opacity"
+                                    >
+                                        <WhatsappIcon size={32} round />
+                                    </WhatsappShareButton>
+                                    <EmailShareButton 
+                                        url={shareUrl} 
+                                        subject={shareTitle}
+                                        className="hover:opacity-80 transition-opacity"
+                                    >
+                                        <EmailIcon size={32} round />
+                                    </EmailShareButton>
+                                </div>
+                                <div className="mt-2 pt-2 border-t border-gray-100">
+                                    <button
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(shareUrl);
+                                            setShowShareMenu(false);
+                                        }}
+                                        className="w-full text-left text-sm text-gray-600 hover:text-gray-900 py-1"
+                                    >
+                                        Copy link
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                     <button
                         onClick={() => setModal(true)}
                         className="flex items-center gap-1.5 bg-green-50 text-green-600 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors text-sm"

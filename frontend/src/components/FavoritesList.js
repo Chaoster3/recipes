@@ -7,11 +7,13 @@ const FavoritesList = ({ username, changeShown }) => {
     useEffect(() => {
         const fetchFavorites = async () => {
             try {
-                const response = await fetch(`http://localhost:3001/favorites/${username}`);
-                const data = await response.json();
-                setFavorites(data);
+                const favResponse = await fetch(
+                    `${process.env.REACT_APP_BASE_URL}/favorites/${username}`
+                );
+                const fav = await favResponse.json();
+                setFavorites(fav);
             } catch (error) {
-                console.error('Error fetching favorites:', error);
+                console.log('Error:', error);
             }
         };
         fetchFavorites();
@@ -52,7 +54,7 @@ const FavoritesList = ({ username, changeShown }) => {
                         <div
                             key={recipe.recipe_id}
                             onClick={() => changeShown(recipe)}
-                            className="group relative bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                            className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5"
                         >
                             <div className="relative h-40">
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
@@ -77,7 +79,6 @@ const FavoritesList = ({ username, changeShown }) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/10 transition-colors duration-300" />
                         </div>
                     ))}
                 </div>

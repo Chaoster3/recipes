@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 
-const SearchBox = ({ setRecipes, setLastQuery, startingQuery }) => {
+const SearchBox = ({ setRecipes, setLastQuery, startingQuery = "" }) => {
     const [query, setQuery] = useState(startingQuery);
 
     const onSearch = async () => {
         try {
             const response = await fetch(
-                `http://localhost:3001/recipes/search?query=${encodeURIComponent(query)}`
+                `${process.env.REACT_APP_BASE_URL}/recipes/search?query=${encodeURIComponent(query)}&number=9`
             );
             
             if (!response.ok) {
@@ -34,8 +34,8 @@ const SearchBox = ({ setRecipes, setLastQuery, startingQuery }) => {
 
     return (
         <div className="m-8 justify-items-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">Search Recipes</h1>
-            <p className="text text-gray-600 mb-6">Discover new dishes for any occasion.</p>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Search Recipes</h1>
+            <p className="text text-gray-600 mb-6 ">Discover new dishes for any occasion.</p>
             <div className="mb-10 flex items-center bg-white shadow-md rounded-lg">
                 <input
                     className="w-[420px] p-3 text rounded-l-lg focus:outline-none text-gray-700"

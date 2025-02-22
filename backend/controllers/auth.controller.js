@@ -52,8 +52,81 @@ const register = async (req, res) => {
     });
 };
 
+const handleGoogleSignin = async (req, res) => {
+    const { googleId } = req.body;
+    
+    try {
+        // Check if user exists with this Google ID
+        const user = await db.select('*')
+            .from('login')
+            .where('google_id', '=', googleId)
+            .first();
+        
+        if (!user) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'user_not_found',
+                message: 'No account found with this Google account' 
+            });
+        }
+        
+        // User exists, log them in
+        return res.json({ 
+            success: true, 
+            message: 'login success',
+            username: user.username 
+        });
+    } catch (error) {
+        console.error('Google signin error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Authentication failed' 
+        });
+    }
+};
+
+const handleGoogleRegister = async (req, res) => {
+    const { username, name, googleId } = req.body;
+    
+    try {
+        // Check if username or Google ID already exists
+        const existingUser = await db.select('*')
+            .from('login')
+            .where('username', '=', username)
+            .orWhere('google_id', '=', googleId)
+            .first();
+        
+        if (existingUser) {
+            // Determine specific error message
+            const errorMessage = existingUser.google_id === googleId
+                ? 'Google account already registered'
+                : 'Username already in use';
+
+            return res.status(409).json({ 
+                success: false, 
+                error: 'user_exists',
+                message: errorMessage 
+            });
+        }
+        
+        // User doesn't exist, create new account
+        await db('login').insert({
+            username: username,
+            google_id: googleId,
+            name: name
+        });
+        
+        res.json({ success: true, message: 'register success' });
+    } catch (error) {
+        console.error('Google register error:', error);
+        res.status(500).json({ success: false, message: 'Authentication failed' });
+    }
+};
+
 module.exports = {
     signin,
     register,
-    test
+    test,
+    handleGoogleSignin,
+    handleGoogleRegister
 }; 
