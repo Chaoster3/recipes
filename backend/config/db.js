@@ -8,10 +8,11 @@ const db = knex({
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
-        // Only use SSL in production
-        ...(process.env.NODE_ENV === 'production' ? {
-            ssl: { rejectUnauthorized: false }
-        } : {})
+        ssl: { rejectUnauthorized: false }
+        // // Only use SSL in production
+        // ...(process.env.NODE_ENV === 'production' ? {
+        //     ssl: { rejectUnauthorized: false }
+        // } : {})
     }
 });
 
