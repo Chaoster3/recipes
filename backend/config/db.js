@@ -12,12 +12,6 @@ const db = knex({
         ...(process.env.NODE_ENV === 'production' ? {
             ssl: { rejectUnauthorized: false }
         } : {})
-    },
-    pool: {
-        min: 2, // Minimum number of connections in the pool
-        max: 10, // Maximum number of connections in the pool
-        idleTimeoutMillis: 30000, // Time in milliseconds before an idle connection is closed
-        acquireTimeoutMillis: 10000 // Time in milliseconds to wait for a connection to become available
     }
 });
 
