@@ -13,7 +13,7 @@ const Search = ({ username }) => {
     const fetchRecipes = async () => {
       try {
         const recommendedResponse = await fetch(
-          `http://localhost:3001/recipes/random`
+          `${process.env.REACT_APP_BASE_URL}/recipes/random`
         );
 
         if (!recommendedResponse.ok) {
