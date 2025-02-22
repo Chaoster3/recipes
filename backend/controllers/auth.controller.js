@@ -1,24 +1,32 @@
 const bcrypt = require('bcrypt');
-const db = require('../config/db');
+const supabase = require('../config/db');
 
 const test = async (req, res) => {
     res.json('test success');
 }
 
 const signin = async (req, res) => {
-    const {username, password} = req.body;
+    const { username, password } = req.body;
     try {
-        // Check if username exists
-        const data = await db.select('username', 'password').from('login')
-            .where('username', '=', username);
-            
-        if (data.length === 0) {
+        // Query the login table using Supabase
+        const { data, error } = await supabase
+            .from('login')
+            .select('username, password')
+            .eq('username', username)
+            .single();
+
+        if (error) {
+            console.log('Login failed:', error.message);
+            return res.status(403).json('login failed');
+        }
+
+        if (!data) {
             console.log('Login failed: User not found');
             return res.status(403).json('login failed');
         }
 
         // Compare passwords
-        const match = await bcrypt.compare(password, data[0].password);
+        const match = await bcrypt.compare(password, data.password);
         if (match) {
             console.log('Login successful for user:', username);
             res.json('login success');
@@ -41,7 +49,7 @@ const register = async (req, res) => {
 
     bcrypt.hash(password, 10, async function (err, hash) {
         try {
-            await db('login').insert({
+            await supabase('login').insert({
                 username: username,
                 password: hash
             });
@@ -57,10 +65,7 @@ const handleGoogleSignin = async (req, res) => {
     
     try {
         // Check if user exists with this Google ID
-        const user = await db.select('*')
-            .from('login')
-            .where('google_id', '=', googleId)
-            .first();
+        const user = await supabase.from('login').select('*').eq('google_id', googleId).single();
         
         if (!user) {
             return res.status(404).json({ 
@@ -90,11 +95,7 @@ const handleGoogleRegister = async (req, res) => {
     
     try {
         // Check if username or Google ID already exists
-        const existingUser = await db.select('*')
-            .from('login')
-            .where('username', '=', username)
-            .orWhere('google_id', '=', googleId)
-            .first();
+        const existingUser = await supabase.from('login').select('*').eq('username', username).or('google_id', '=', googleId).single();
         
         if (existingUser) {
             // Determine specific error message
@@ -110,7 +111,7 @@ const handleGoogleRegister = async (req, res) => {
         }
         
         // User doesn't exist, create new account
-        await db('login').insert({
+        await supabase('login').insert({
             username: username,
             google_id: googleId
         });
