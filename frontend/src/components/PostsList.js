@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Timer, MessageSquare, Users } from 'lucide-react';
 
-const PostsList = ({ username, changeShown }) => {
+const PostsList = ({ username, changeShown, EmptyState }) => {
     const [posts, setPosts] = useState(null);
 
     useEffect(() => {
@@ -33,21 +33,11 @@ const PostsList = ({ username, changeShown }) => {
     }
 
     if (posts.length === 0) {
-        return (
-            <div className="text-center mt-32">
-                <h1 className="text-3xl font-bold text-gray-800 mb-4">Community Reviews</h1>
-                <p className="text-lg text-gray-600">No reviews have been shared yet!</p>
-            </div>
-        );
+        return EmptyState ? <EmptyState /> : null;
     }
 
     return (
-        <div className="max-w-7xl mx-20 px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center mb-12">
-                <h1 className="text-3xl font-bold text-gray-800 mb-4">Community Reviews</h1>
-                <p className="text-md text-gray-600">Discover what others are cooking and loving</p>
-            </div>
-
+        <div className="w-full">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {posts.map((recipe) => (
                     <div
