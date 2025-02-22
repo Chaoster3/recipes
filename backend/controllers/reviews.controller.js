@@ -1,26 +1,38 @@
-const db = require('../config/db');
+const supabase = require('../config/db');
 
 const getReviews = async (req, res) => {
     try {
-        const reviews = await db
-            .select(
-                'reviews.review_id',
-                'reviews.username',
-                'reviews.review',
-                'reviews.recipe_id',
-                'recipes.title',
-                'recipes.image',
-                'recipes.servings',
-                'recipes.minutes',
-                'recipes.ingredients',
-                'recipes.instructions',
-                'recipes.summary',
-            )
+        const { data: reviews, error } = await supabase
             .from('reviews')
-            .join('recipes', 'reviews.recipe_id', '=', 'recipes.recipe_id')
-            .orderBy('reviews.review_id', 'desc');
+            .select(`
+                review_id,
+                username,
+                review,
+                recipe_id,
+                recipes (
+                    title,
+                    image,
+                    servings,
+                    minutes,
+                    ingredients,
+                    instructions,
+                    summary
+                )
+            `)
+            .order('review_id', { ascending: false });
 
-        res.json(reviews);
+        if (error) throw error;
+
+        // Transform the nested data to match the previous format
+        const transformedReviews = reviews.map(r => ({
+            review_id: r.review_id,
+            username: r.username,
+            review: r.review,
+            recipe_id: r.recipe_id,
+            ...r.recipes
+        }));
+
+        res.json(transformedReviews);
     } catch (error) {
         console.log(error);
         res.status(400).json('failed to retrieve reviews');
@@ -31,31 +43,34 @@ const addReview = async (req, res) => {
     const { username, recipe_id, title, image, servings, minutes, ingredients, instructions, summary, review } = req.body;
     
     try {
-        await db.transaction(async trx => {
-            // Insert the recipe into the 'recipes' table if it doesn't already exist
-            await trx('recipes')
-                .insert({
-                    recipe_id,
-                    title,
-                    image,
-                    servings,
-                    minutes,
-                    ingredients,
-                    instructions,
-                    summary,
-                })
-                .onConflict('recipe_id')  // Prevent inserting a duplicate recipe
-                .ignore();  // Ignore the insertion if the recipe_id already exists
-
-            // Insert the new post into the 'reviews' table
-            await trx('reviews').insert({
-                username,
+        // First, insert or update the recipe
+        const { error: recipeError } = await supabase
+            .from('recipes')
+            .upsert({
                 recipe_id,
-                review,
+                title,
+                image,
+                servings,
+                minutes,
+                ingredients,
+                instructions,
+                summary
             });
 
-            res.json("successfully posted review");
-        });
+        if (recipeError) throw recipeError;
+
+        // Then, insert the review
+        const { error: reviewError } = await supabase
+            .from('reviews')
+            .insert({
+                username,
+                recipe_id,
+                review
+            });
+
+        if (reviewError) throw reviewError;
+
+        res.json("successfully posted review");
     } catch (error) {
         console.log(error);
         res.status(400).json('failed to post');

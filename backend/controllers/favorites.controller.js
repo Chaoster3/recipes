@@ -1,23 +1,35 @@
-const db = require('../config/db');
+const supabase = require('../config/db');
 
 const getFavorites = async (req, res) => {
     const { username } = req.params;
     try {
-        const favorites = await db('favorites')
-            .join('recipes', 'favorites.recipe_id', '=', 'recipes.recipe_id')
-            .where('favorites.username', '=', username)
-            .select(
-                'favorites.username',
-                'favorites.recipe_id',
-                'recipes.title',
-                'recipes.image',
-                'recipes.servings',
-                'recipes.minutes',
-                'recipes.ingredients',
-                'recipes.instructions',
-                'recipes.summary'
-            );
-        res.json(favorites);
+        const { data: favorites, error } = await supabase
+            .from('favorites')
+            .select(`
+                username,
+                recipe_id,
+                recipes (
+                    title,
+                    image,
+                    servings,
+                    minutes,
+                    ingredients,
+                    instructions,
+                    summary
+                )
+            `)
+            .eq('username', username);
+
+        if (error) throw error;
+        
+        // Transform the nested data to match the previous format
+        const transformedFavorites = favorites.map(f => ({
+            username: f.username,
+            recipe_id: f.recipe_id,
+            ...f.recipes
+        }));
+
+        res.json(transformedFavorites);
     } catch (error) {
         console.log(error);
         res.status(400).json('failed to retrieve favorites');
@@ -27,11 +39,11 @@ const getFavorites = async (req, res) => {
 const addFavorite = async (req, res) => {
     const { username, recipe_id, title, image, servings, minutes, ingredients, instructions, summary } = req.body;
 
-    const trx = await db.transaction();
-
     try {
-        await trx('recipes')
-            .insert({
+        // First, insert or update the recipe
+        const { error: recipeError } = await supabase
+            .from('recipes')
+            .upsert({
                 recipe_id,
                 title,
                 image,
@@ -39,20 +51,23 @@ const addFavorite = async (req, res) => {
                 minutes,
                 ingredients,
                 instructions,
-                summary,
-            })
-            .onConflict('recipe_id')
-            .ignore();
+                summary
+            });
 
-        await trx('favorites').insert({
-            username,
-            recipe_id,
-        });
+        if (recipeError) throw recipeError;
 
-        await trx.commit();
+        // Then, insert the favorite
+        const { error: favoriteError } = await supabase
+            .from('favorites')
+            .insert({
+                username,
+                recipe_id
+            });
+
+        if (favoriteError) throw favoriteError;
+
         res.json('saved to favorites');
     } catch (error) {
-        await trx.rollback();
         console.log(error);
         res.status(400).json('failed to save to favorites');
     }
@@ -61,14 +76,16 @@ const addFavorite = async (req, res) => {
 const checkFavorite = async (req, res) => {
     const { username, recipeId } = req.params;
     try {
-        const favorite = await db('favorites')
-            .where({
-                username: username,
-                recipe_id: recipeId
-            })
-            .first();
+        const { data, error } = await supabase
+            .from('favorites')
+            .select()
+            .eq('username', username)
+            .eq('recipe_id', recipeId)
+            .single();
+
+        if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "not found"
         
-        res.json({ isFavorited: !!favorite });
+        res.json({ isFavorited: !!data });
     } catch (error) {
         console.log(error);
         res.status(400).json('failed to check favorite status');
@@ -78,9 +95,14 @@ const checkFavorite = async (req, res) => {
 const removeFavorite = async (req, res) => {
     const {username, recipe_id} = req.body;
     try {
-        await db('favorites')
-            .where({username, recipe_id})
-            .del();
+        const { error } = await supabase
+            .from('favorites')
+            .delete()
+            .eq('username', username)
+            .eq('recipe_id', recipe_id);
+
+        if (error) throw error;
+        
         res.json("removed from favorites");
     } catch (error) {
         console.log(error);
