@@ -4,5 +4,6 @@ const recipesController = require('../controllers/recipes.controller');
 
 router.get('/random', recipesController.getRandomRecipes);
 router.get('/search', recipesController.searchRecipes);
+router.get('/:id', recipesController.getRecipeById);
 
 module.exports = router; 

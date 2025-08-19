@@ -1,111 +1,90 @@
-const supabase = require('../config/db');
+const db = require('../config/db');
 
 const getFavorites = async (req, res) => {
     const { username } = req.params;
     try {
-        const { data: favorites, error } = await supabase
-            .from('favorites')
-            .select(`
-                username,
-                recipe_id,
-                recipes (
-                    title,
-                    image,
-                    servings,
-                    minutes,
-                    ingredients,
-                    instructions,
-                    summary
-                )
-            `)
-            .eq('username', username);
-
-        if (error) throw error;
+        console.log(username);
+        const result = await db.query(
+            `SELECT f.*, r.* 
+            FROM favorites f 
+            JOIN recipes r ON f.recipe_id = r.recipe_id 
+            WHERE f.username = $1`,
+            [username]
+        );
         
-        // Transform the nested data to match the previous format
-        const transformedFavorites = favorites.map(f => ({
-            username: f.username,
-            recipe_id: f.recipe_id,
-            ...f.recipes
-        }));
-
-        res.json(transformedFavorites);
+        // The PostgreSQL driver automatically parses JSON fields, so no need to parse again
+        res.json(result.rows);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(400).json('failed to retrieve favorites');
     }
 };
 
 const addFavorite = async (req, res) => {
     const { username, recipe_id, title, image, servings, minutes, ingredients, instructions, summary } = req.body;
-
+    const client = await db.pool.connect();
+    
     try {
-        // First, insert or update the recipe
-        const { error: recipeError } = await supabase
-            .from('recipes')
-            .upsert({
-                recipe_id,
-                title,
-                image,
-                servings,
-                minutes,
-                ingredients,
-                instructions,
-                summary
-            });
+        await client.query('BEGIN');
 
-        if (recipeError) throw recipeError;
+        // First, insert or update recipe
+        await client.query(
+            `INSERT INTO recipes (recipe_id, title, image, servings, minutes, ingredients, instructions, summary)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            ON CONFLICT (recipe_id) DO UPDATE SET
+            title = EXCLUDED.title,
+            image = EXCLUDED.image,
+            servings = EXCLUDED.servings,
+            minutes = EXCLUDED.minutes,
+            ingredients = EXCLUDED.ingredients,
+            instructions = EXCLUDED.instructions,
+            summary = EXCLUDED.summary`,
+            [recipe_id, title, image, servings, minutes, ingredients, instructions, summary]
+        );
 
-        // Then, insert the favorite
-        const { error: favoriteError } = await supabase
-            .from('favorites')
-            .insert({
-                username,
-                recipe_id
-            });
+        // Then, add to favorites
+        await client.query(
+            `INSERT INTO favorites (username, recipe_id)
+            VALUES ($1, $2)
+            ON CONFLICT (username, recipe_id) DO NOTHING`,
+            [username, recipe_id]
+        );
 
-        if (favoriteError) throw favoriteError;
-
+        await client.query('COMMIT');
         res.json('saved to favorites');
     } catch (error) {
-        console.log(error);
+        await client.query('ROLLBACK');
+        console.error(error);
         res.status(400).json('failed to save to favorites');
+    } finally {
+        client.release();
     }
 };
 
 const checkFavorite = async (req, res) => {
     const { username, recipeId } = req.params;
     try {
-        const { data, error } = await supabase
-            .from('favorites')
-            .select()
-            .eq('username', username)
-            .eq('recipe_id', recipeId)
-            .single();
-
-        if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "not found"
-        
-        res.json({ isFavorited: !!data });
+        const result = await db.query(
+            'SELECT EXISTS(SELECT 1 FROM favorites WHERE username = $1 AND recipe_id = $2)',
+            [username, recipeId]
+        );
+        res.json({ isFavorited: result.rows[0].exists });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(400).json('failed to check favorite status');
     }
 };
 
 const removeFavorite = async (req, res) => {
-    const {username, recipe_id} = req.body;
+    const { username, recipe_id } = req.body;
     try {
-        const { error } = await supabase
-            .from('favorites')
-            .delete()
-            .eq('username', username)
-            .eq('recipe_id', recipe_id);
-
-        if (error) throw error;
-        
+        await db.query(
+            'DELETE FROM favorites WHERE username = $1 AND recipe_id = $2',
+            [username, recipe_id]
+        );
         res.json("removed from favorites");
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(400).json('failed to remove from favorites');
     }
 };

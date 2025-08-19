@@ -1,30 +1,28 @@
-const { createClient } = require('@supabase/supabase-js');
+const { Pool } = require('pg');
 
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-);
-
-// Keep the old knex configuration commented out for reference
-/*
-const db = knex({
-    client: 'pg',
-    connection: {
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        ...(process.env.NODE_ENV === 'production' ? {
-            ssl: { rejectUnauthorized: false }
-        } : {})
-    },
-    pool: {
-        min: 2,
-        max: 10,
-        idleTimeoutMillis: 30000,
-        acquireTimeoutMillis: 10000
+const pool = new Pool({
+    connectionString: process.env.DB_URL,
+    ssl: {
+        rejectUnauthorized: false
     }
 });
-*/
 
-module.exports = supabase; 
+// Test the connection
+pool.connect((err, client, release) => {
+    if (err) {
+        return console.error('Error acquiring client:', err.stack);
+    }
+    client.query('SELECT NOW()', (err, result) => {
+        release();
+        if (err) {
+            return console.error('Error executing query:', err.stack);
+        }
+        console.log('Connected to PostgreSQL database');
+    });
+});
+
+// Export a query function to use in controllers
+module.exports = {
+    query: (text, params) => pool.query(text, params),
+    pool
+};
