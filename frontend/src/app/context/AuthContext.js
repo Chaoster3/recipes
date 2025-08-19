@@ -37,8 +37,14 @@ export function AuthProvider({ children }) {
           router.push('/home');
         }
       } else if (!isPublicPath()) {
-        // Redirect to login if not authenticated and not on a public path
-        router.push(`/?from=${encodeURIComponent(pathname)}&message=Please log in to access this page`);
+        // Don't redirect if user just logged out
+        const urlParams = new URLSearchParams(window.location.search);
+        const isLogout = urlParams.get('logout') === 'true';
+        
+        if (!isLogout) {
+          // Redirect to login if not authenticated and not on a public path
+          router.push(`/?from=${encodeURIComponent(pathname)}&message=Please log in to access this page`);
+        }
       }
       
       setLoading(false);
@@ -56,7 +62,8 @@ export function AuthProvider({ children }) {
   const logout = () => {
     deleteCookie('username');
     setUser(null);
-    router.push('/');
+    // Redirect to home page without the error message
+    router.push('/?logout=true');
   };
 
   // Values provided by the context

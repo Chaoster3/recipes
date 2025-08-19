@@ -12,6 +12,7 @@ const LoginContent = () => {
     const { login, isAuthenticated } = useAuth();
     const searchParams = useSearchParams();
     const message = searchParams.get('message');
+    const logout = searchParams.get('logout');
     const returnTo = searchParams.get('from') || '/home';
 
     const [username, setUsername] = useState("");
@@ -121,6 +122,23 @@ const LoginContent = () => {
                 <div className="absolute top-40 left-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style={{animationDelay: '4s'}}></div>
             </div>
 
+            {/* Success message for logout */}
+            {logout === 'true' && (
+                <div className="mb-6 max-w-md p-4 bg-green-50 border border-green-200 rounded-xl shadow-lg fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm font-medium text-green-800">Successfully logged out</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Error message */}
             {message && (
                 <div className="mb-6 max-w-md p-4 bg-yellow-50 border border-yellow-200 rounded-xl shadow-lg fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
                     <div className="flex items-center">
