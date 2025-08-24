@@ -1,4 +1,4 @@
-# Delish - Recipe Discovery Platform
+# Delish
 
 A full-stack web application for discovering, saving, reviewing, and sharing recipes.
 
@@ -85,6 +85,6 @@ cd ../frontend && npm install
 # Frontend: NEXT_PUBLIC_API_URL, NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
 # Start development servers
-cd backend && npm start      # Port 3001
-cd frontend && npm run dev   # Port 3000
+cd backend && npm start
+cd frontend && npm run dev  
 ```
