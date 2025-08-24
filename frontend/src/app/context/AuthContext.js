@@ -8,7 +8,7 @@ import { getCookie, setCookie, deleteCookie } from '../utils/cookies';
 const AuthContext = createContext(null);
 
 // Public paths that don't require auth
-const publicPaths = ['/', '/register', '/home'];
+const publicPaths = ['/', '/register'];
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
